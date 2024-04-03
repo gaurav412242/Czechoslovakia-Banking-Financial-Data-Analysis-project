@@ -1,0 +1,212 @@
+--DATA CLEANING AND MODIFICATION 
+--ACCOUNT 
+--1.	Convert the Date attribute into a yyyy-mm-dd by adding 24 in year format  SQL
+UPDATE ACCOUNT 
+SET DATE = DATEADD(YEAR,24,DATE) ;
+
+SELECT DISTINCT YEAR(DATE) FROM ACCOUNT ;
+
+--2.	Replace in frequency attribute “POPLATEK MESICNE” AS Monthly Issuance, “POPLATEKTYDNE” AS Weekly Issuance, and “POPLATEK POBRATU” AS Issuance After a Transaction .
+
+SELECT CASE WHEN FREQUENCY ='POPLATEK MESICNE' THEN 'Monthly Issuance'
+            WHEN FREQUENCY = 'POPLATEK PO OBRATU' THEN 'Issuance After a Transaction'
+            ELSE 'Weekly Issuance'
+            END
+            FROM ACCOUNT;
+
+UPDATE  ACCOUNT 
+SET FREQUENCY = CASE WHEN FREQUENCY ='POPLATEK MESICNE' THEN 'Monthly Issuance'
+            WHEN FREQUENCY = 'POPLATEK PO OBRATU' THEN 'Issuance After a Transaction'
+            ELSE 'Weekly Issuance'
+            END ;
+
+--3Create a Custom Column Card_Assigned and assign below : ●	Silver -> Monthly issuance●	Diamond - weekly issuance
+--●	Gold 
+END - Issuance after a transaction
+
+ALTER TABLE ACCOUNT 
+ADD COLUMN Card_Assigned VARCHAR(100);
+SELECT * FROM ACCOUNT ;
+
+UPDATE ACCOUNT 
+SET Card_Assigned = CASE WHEN FREQUENCY = 'Monthly Issuance' THEN 'Silver'
+                        WHEN FREQUENCY = 'Weekly Issuance' THEN 'Diamond'
+                        ELSE 'Gold' 
+                        END ;
+
+select * from account;                        
+
+SELECT DISTINCT FREQUENCY FROM ACCOUNT ;
+
+--CARD 
+--1.	Replace type attribute value “junior” as Sliver, “Classic” as Gold,And “Gold” as Diamond .
+UPDATE CARD 
+SET TYPE = CASE WHEN TYPE = 'junior' THEN 'Silver'
+                WHEN TYPE = 'gold'   THEN 'Diamond'
+                ELSE 'Gold'
+                END ;
+--2.	Convert issued attribute into yyyy-mm-dd adding 23 in year.
+
+UPDATE CARD 
+SET DATE = DATEADD(YEAR,23,DATE) ;
+
+SELECT * FROM CARD;
+
+ALTER TABLE CARD DROP COLUMN DATE2 ;
+
+--CLIENT 
+--1.	Convert bith_number attribute to yyyy-mm-dd format and also create another column named sex by applying in bith_number 0 for females and 1 for males.
+--For Male its in YYMMDD format and for female it is YYMM+50DD for Women
+
+
+ALTER TABLE CLIENT 
+ADD COLUMN GENDER VARCHAR(20) ;
+
+SELECT * FROM CLIENT 
+ORDER BY CLIENT_ID ;
+
+
+ALTER TABLE CLIENT 
+ADD COLUMN  DATE2 INT ;
+
+UPDATE CLIENT 
+SET GENDER = CASE WHEN  (YEAR(BIRTH_DATE) % 2) = 0 THEN 'Female'
+                  ELSE 'Male' 
+                  END ;
+                   
+UPDATE CLIENT 
+SET BIRTH_DATE = DATEADD(DAY,+55,BIRTH_DATE)
+WHERE GENDER = 'Female';
+                  
+ALTER TABLE CLIENT
+DROP COLUMN DATE2 ;
+
+SELECT GENDER ,  COUNT(GENDER) FROM CLIENT
+GROUP BY 1 ;
+
+--CREATE  AGE COLUMN  AND MENTION THE AGE BY KEPPING THE MAX DATE AS 31-12-2022
+SELECT * FROM CLIENT ORDER BY AGE ;
+
+ALTER TABLE CLIENT 
+ADD COLUMN AGE INT ;
+
+UPDATE CLIENT 
+SET AGE = DATEDIFF(YEAR,BIRTH_DATE ,'2022-12-31');
+
+
+
+
+--LOAN
+--Convert Status Attribute value “A” as Contract Finished, “B” as Loan Not Paid, “C” as Running Contract, and “D” Client in debt.
+
+SELECT * FROM LOAN;
+
+UPDATE LOAN 
+SET STATUS = CASE WHEN STATUS = 'A' THEN 'Contract Finished'
+                  WHEN  STATUS ='B' THEN 'Loan Not Paid'
+                  WHEN STATUS = 'C' THEN 'Running Contract'
+                  ELSE 'Client in debt' 
+                  END ;
+ALTER TABLE LOAN 
+DROP COLUMN DATE2 ;
+
+--TRANSACTION 
+SELECT * FROM TRANSACTION  
+ORDER BY DATE DESC
+LIMIT 1;
+
+SELECT COUNT(*) FROM TRANSACTION ;
+
+SELECT DISTINCT YEAR(DATE) FROM TRANSACTION ;
+
+SELECT DISTINCT TYPE FROM TRANSACTION;
+
+----DATA TRANSFORMATION
+/*
+2021 -> 2022
+2020 -> 2021
+2019 -> 2020 
+2018 -> 2019
+2017 -> 2018
+2016 -> 2017 
+*/
+
+UPDATE TRANSACTION 
+SET DATE = DATEADD(YEAR,+1,DATE)
+WHERE YEAR(DATE) = 2021 ;
+
+UPDATE TRANSACTION 
+SET DATE = DATEADD(YEAR,+1,DATE)
+WHERE YEAR(DATE) = 2020 ;
+
+UPDATE TRANSACTION 
+SET DATE = DATEADD(YEAR,+1,DATE)
+WHERE YEAR(DATE) = 2019 ;
+
+UPDATE TRANSACTION 
+SET DATE = DATEADD(YEAR,+1,DATE)
+WHERE YEAR(DATE) = 2018 ;
+
+UPDATE TRANSACTION 
+SET DATE = DATEADD(YEAR,+1,DATE)
+WHERE YEAR(DATE) = 2017 ;
+
+UPDATE TRANSACTION 
+SET DATE = DATEADD(YEAR,+1,DATE)
+WHERE YEAR(DATE) = 2016 ;
+
+SELECT DISTINCT YEAR(DATE) , COUNT(*) FROM TRANSACTION 
+GROUP BY 1 
+ORDER BY 2 DESC ;
+
+
+SELECT * FROM TRANSACTION ;
+WHERE YEAR(DATE) = 2017;
+
+SELECT MIN(DATE) , MAX(DATE) FROM TRANSACTION ;
+TRUNCATE TABLE TRANSACTION ; 
+
+SELECT * FROM TRANSACTION 
+WHERE YEAR(DATE) = 2022 AND BANK IS NULL ;
+
+UPDATE TRANSACTION
+SET BANK = 'Sky Bank'
+WHERE YEAR(DATE) = 2022 AND BANK IS NULL ;
+
+
+SELECT * FROM TRANSACTION 
+WHERE YEAR(DATE) = 2021 AND BANK IS NULL;
+
+UPDATE TRANSACTION
+SET BANK = 'DBS Bank' 
+WHERE YEAR(DATE) = 2021 AND BANK IS NULL ;
+
+SELECT * FROM TRANSACTION 
+WHERE YEAR(DATE) = 2020 AND BANK IS NULL;-- NO NULL VALUES
+
+SELECT * FROM TRANSACTION 
+WHERE YEAR(DATE) = 2019 AND BANK IS NULL;
+
+UPDATE TRANSACTION
+SET BANK = 'Northern Bank' 
+WHERE YEAR(DATE) = 2019 AND BANK IS NULL ; 
+
+SELECT * FROM TRANSACTION 
+WHERE YEAR(DATE) = 2018 AND BANK IS NULL;
+
+
+UPDATE TRANSACTION
+SET BANK = 'Southern Bank' 
+WHERE YEAR(DATE) = 2018 AND BANK IS NULL ;
+
+SELECT * FROM TRANSACTION   
+WHERE YEAR(DATE) = 2017 AND BANK IS NULL;
+
+UPDATE TRANSACTION
+SET BANK = 'ADB Bank' 
+WHERE YEAR(DATE) = 2017 AND BANK IS NULL ;
+
+SELECT * FROM TRANSACTION 
+WHERE BANK IS NULL ;
+
+SELECT DISTINCT YEAR(ISSUED) FROM CARD ;
