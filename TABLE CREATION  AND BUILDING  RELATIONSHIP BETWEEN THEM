@@ -1,0 +1,95 @@
+CREATE DATABASE CHECZ_BANK ;
+USE CHECZ_BANK ;
+
+--CREATING TABLES AND BUILDING  RELATIONSHIP BETWEEN THEM 
+
+CREATE OR REPLACE TABLE ACCOUNT(
+account_id INT PRIMARY KEY ,
+district_id INT ,
+frequency VARCHAR(50),
+date DATE,
+Account_type VARCHAR(50),
+CARD_ASSIGNED VARCHAR(50),
+FOREIGN KEY (district_id) REFERENCES DISTRICT(district_code)
+);
+
+ALTER TABLE ACCOUNT 
+ADD COLUMN DATE2 INT ;
+
+CREATE OR REPLACE TABLE CARD (
+card_id INT PRIMARY KEY,
+disp_id INT ,
+type  VARCHAR(50),
+issued DATE ,
+FOREIGN KEY (disp_id) REFERENCES DISP(disp_id) 
+);
+
+CREATE OR REPLACE TABLE CLIENT (
+client_id INT PRIMARY KEY , 
+SEX VARCHAR(20) ,
+birth_DATE DATE ,
+district_id INT , 
+FOREIGN KEY (district_id) REFERENCES DISTRICT(district_code)
+);
+
+SELECT * FROM CLIENT ;
+
+CREATE OR REPLACE TABLE DISP (
+disp_id INT PRIMARY KEY , 
+client_id INT ,
+account_id INT ,
+type VARCHAR(100),
+FOREIGN KEY (client_id) REFERENCES CLIENT(client_id),
+FOREIGN KEY (account_id) REFERENCES ACCOUNT(account_id)
+);
+
+CREATE OR REPLACE TABLE DISTRICT (
+district_code  INT PRIMARY KEY, 
+district_name  VARCHAR(100),
+region VARCHAR(100),
+no_of_inhabitants INT ,
+no_of_municipalities_with_inhabitants_lessthan_499  INT ,
+no_of_municipalities_with_inhabitants_500_between_1999 INT,
+no_of_municipalities_with_inhabitants_2000_between_9999 INT ,
+no_of_municipalities_with_inhabitants_lessthan_10000 INT , 
+no_of_cities INT , 
+ratio_of_urban_inhabitants FLOAT ,
+average_salary INT , 
+no_of_entrepreneurs_per_1000_inhabitants INT , 
+no_of_commited_crimes_2017 INT ,
+no_of_commited_crimes_2018 INT
+);
+
+CREATE OR REPLACE TABLE LOAN (
+loan_id  INT PRIMARY KEY ,
+account_id INT ,
+date DATE ,
+amount INT ,
+duration INT , 
+payments INT , 
+status  VARCHAR(100),
+FOREIGN KEY (account_id) REFERENCES ACCOUNT(account_id)
+);
+
+CREATE OR REPLACE TABLE ORDER1 (
+order_id INT PRIMARY KEY ,
+account_id INT ,
+Bank_to VARCHAR(100),
+account_to  INT ,
+amount  INT ,
+FOREIGN KEY (account_id) REFERENCES ACCOUNT(account_id)
+);
+
+CREATE OR REPLACE TABLE TRANSACTION (
+trans_id INT PRIMARY KEY ,
+account_id INT , 
+Date DATE , 
+Type VARCHAR(100) ,
+operation VARCHAR(100),
+amount INT , 
+balance  FLOAT , 
+Purpose VARCHAR(100),
+bank VARCHAR(100),
+account_partern_id INT ,
+FOREIGN KEY (account_id) REFERENCES ACCOUNT(account_id)
+);  
